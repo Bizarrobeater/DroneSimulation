@@ -35,27 +35,66 @@ namespace DroneSimulation
         // TODO: finish this method, should probably be in several methods.
         public void WillCollide()
         {
-            List<Drone[]> collidingDronePairs = new List<Drone[]>();
-            List<Drone> collidingDrones = new List<Drone>();
-            Drone xDrone;
-            Drone yDrone;
+            List<Drone[]> collisionPairs = new List<Drone[]>();
 
             for (int i = 0; i < _drones.Count - 1; i++)
             {
+                Drone xDrone = _drones[i];
                 for (int j = i + 1; j < _drones.Count; j++)
                 {
-                    xDrone = _drones[i];
-                    yDrone = _drones[j];
+                    Drone yDrone = _drones[j];
                     float distance = DroneDist(xDrone, yDrone);
                     if (distance < 5f)
                     {
-                        if (!collidingDrones.Contains(xDrone) 
-                            && !collidingDrones.Contains(xDrone))
-                        {
-                            collidingDronePairs.Add(new Drone[] { xDrone, yDrone });
-                        }
+                        collisionPairs.Add(new Drone[] { xDrone, yDrone });
                     }
                 }
+            }
+
+            collisionPairs = CheckForMulitpleCollisions(collisionPairs);
+            _collidingDrones.AddRange(collisionPairs);
+
+        }
+
+        private void RemoveDestroyedDrone(List<Drone[]> collisionPairs)
+        {
+
+        }
+
+        private List<Drone[]> CheckForMulitpleCollisions(List<Drone[]> collisionPairs)
+        {
+            Dictionary<Drone, List<Drone>> collidingDrones = new Dictionary<Drone, List<Drone>>();
+            
+            foreach (Drone[] pair in collisionPairs)
+            {
+                AddDronesToCollisionDict(pair[0], pair[1], ref collidingDrones);
+                AddDronesToCollisionDict(pair[1], pair[2], ref collidingDrones);
+            }
+
+            foreach (KeyValuePair<Drone, List<Drone>> collisions in collidingDrones)
+            {
+                if (collisions.Value.Count <= 1)
+                    continue;
+
+            }
+
+            return new List<Drone[]>();
+        }
+
+        private void AddDronesToCollisionDict(Drone xDrone, Drone yDrone, ref Dictionary<Drone, List<Drone>> collidingDrones)
+        {
+            if (collidingDrones.ContainsKey(xDrone))
+                collidingDrones[xDrone].Add(yDrone);
+            else
+                collidingDrones[xDrone] = new List<Drone> { yDrone };
+        }
+
+        // TODO find the least distance between multiple crashing drones and have them crash, other drones involved will be safe
+        private void CrashLeastDistanceDrones(Drone keyDrone, Dictionary<Drone, List<Drone>> collidingDrones)
+        {
+            foreach (Drone crashDrone in collidingDrones[keyDrone])
+            {
+
             }
         }
 
